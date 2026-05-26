@@ -15,23 +15,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@v2
+      - uses: dart-lang/setup-dart@v1
         with:
-          flutter-version: "3.27.0"
-          channel: stable
-          cache: true
+          sdk: stable
 
-      - name: Flutter version
-        run: flutter --version
-
-      - name: Generate platform stubs
-        run: flutter create --project-name istream --platforms=android,web .
+      - name: Dart version
+        run: dart --version
 
       - name: Resolve dependencies
-        run: flutter pub get
+        run: dart pub get
 
       - name: Analyze
-        run: flutter analyze
+        run: dart analyze --fatal-infos
 
       - name: Test
-        run: flutter test --reporter expanded
+        run: dart test --reporter expanded
+
+      - name: Compile binary
+        run: dart compile exe bin/istream.dart -o istream
+
+      - name: Smoke test compiled binary
+        run: ./istream design examples/sample.yaml --format=json | head -20

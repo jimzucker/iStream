@@ -1,4 +1,4 @@
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 import 'package:istream/engine/design_engine.dart';
 import 'package:istream/models/field.dart';
 import 'package:istream/models/pipeline_input.dart';

@@ -1,0 +1,18 @@
+# Example iStream config — a clickstream events pipeline.
+# Run:  dart run istream design examples/sample.yaml
+
+topic_name: events
+fields:
+  - { name: user_id,    type: string }
+  - { name: event_time, type: timestamp }
+  - { name: amount,     type: decimal }
+  - { name: country,    type: string }
+
+partition_key: user_id
+cardinality: 1000000        # ~1M distinct users
+skew: mild                  # none | mild | heavy
+
+throughput_eps: 50000       # base events per second
+peak_multiplier: 3.0        # 3× peaks during traffic spikes
+avg_event_size_bytes: 512
+latency_slo_ms: 1000        # end-to-end p99 budget
