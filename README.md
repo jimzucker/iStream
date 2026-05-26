@@ -1,9 +1,10 @@
 # iStream
 
-An iPhone app that designs a Kafka + Flink streaming pipeline from a description of the
+A Flutter app that designs a Kafka + Flink streaming pipeline from a description of the
 input event: its schema, partition key, key distribution, and throughput/latency targets.
 
 The design engine is rule-based and runs entirely on-device — no network, no API keys.
+Works on iOS, Android, web, and desktop from a single codebase.
 
 ## What it produces
 
@@ -12,7 +13,7 @@ The design engine is rule-based and runs entirely on-device — no network, no A
   interval & mode, watermark bound, allowed lateness.
 - **Skew mitigation plan**: salting + two-stage aggregation for hot keys.
 - **Notes**: producer/consumer settings, capacity warnings.
-- **Mermaid topology diagram** and a full **Markdown design doc** you can copy or share.
+- **Mermaid topology diagram** and a full **Markdown design doc** you can copy.
 
 ## Inputs
 
@@ -24,7 +25,7 @@ The design engine is rule-based and runs entirely on-device — no network, no A
 - Average event size (bytes).
 - Latency SLO (ms).
 
-## Heuristics (cheat sheet)
+## Heuristics
 
 | Decision | Rule |
 |---|---|
@@ -47,50 +48,42 @@ Skew handling:
 ## Layout
 
 ```
-Package.swift              # SwiftPM manifest, library target `iStream`
-Sources/iStream/
-  Models/                  # Field, SkewLevel, PipelineInput, PipelineDesign
-  Engine/                  # DesignEngine, MermaidRenderer, MarkdownRenderer, Clipboard
-  UI/                      # SwiftUI views + form view-model
-App/iStreamApp.swift       # @main entry — copy into your Xcode app target
-Tests/iStreamTests/        # XCTest coverage of the engine
+pubspec.yaml
+analysis_options.yaml
+lib/
+  main.dart                       # @main entry → MaterialApp → PipelineFormScreen
+  models/                         # Field, SkewLevel, PipelineInput, PipelineDesign
+  engine/                         # DesignEngine, MermaidRenderer, MarkdownRenderer
+  ui/
+    pipeline_form_screen.dart     # Form: schema, key/distro, targets
+    result_screen.dart            # Cards: topic, flink, skew, notes, mermaid, markdown
+    sections/                     # Reusable form sections
+test/
+  design_engine_test.dart         # Engine coverage
 ```
 
-## Running the engine tests
+## Setup
 
-The engine is platform-agnostic and runs under SwiftPM on macOS:
+The repo does not commit the generated `ios/`, `android/`, `web/`, or `macos/`
+platform folders. Generate them once:
 
 ```bash
-swift test
+flutter create --project-name istream --platforms=ios,android,web .
+flutter pub get
 ```
 
-The SwiftUI views are guarded by `#if canImport(SwiftUI)` so the package builds even
-where SwiftUI is absent.
+## Test
 
-## Building the iPhone app
+```bash
+flutter test
+```
 
-Swift Package Manager can't produce an `.app` bundle on its own. To run on a device or
-simulator:
+## Run
 
-1. Open Xcode 15+ → **File ▸ New ▸ Project… ▸ iOS ▸ App**.
-   - Product Name: `iStream`
-   - Interface: SwiftUI, Language: Swift
-2. **File ▸ Add Package Dependencies… ▸ Add Local…** and pick this repo directory.
-   Add `iStream` to your app target.
-3. Replace the generated `ContentView.swift` / `iStreamApp.swift` with the contents of
-   [`App/iStreamApp.swift`](App/iStreamApp.swift) (or just paste:
+```bash
+flutter run                       # picks an attached device or simulator
+flutter run -d chrome             # web
+flutter run -d "iPhone 15 Pro"    # specific iOS simulator
+```
 
-   ```swift
-   import SwiftUI
-   import iStream
-
-   @main
-   struct iStreamApp: App {
-       var body: some Scene {
-           WindowGroup { iStreamRootView() }
-       }
-   }
-   ```
-4. Build & run on an iPhone simulator.
-
-Minimum deployment target: **iOS 17** (uses `NavigationStack`, `ShareLink`, `.sheet(item:)`).
+Minimum Flutter: **3.24** / Dart **3.5**.
