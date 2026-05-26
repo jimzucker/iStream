@@ -7,6 +7,14 @@
 .buildlog/
 .history
 
+# Swift / Xcode / SwiftPM
+.build/
+.swiftpm/
+DerivedData/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+Package.resolved
+
 
 
 # Flutter repo-specific
